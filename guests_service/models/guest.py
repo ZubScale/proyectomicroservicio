@@ -6,7 +6,7 @@ class Guest(Base):
     __tablename__ = "guests"
 
     id = Column(Integer, primary_key=True, index=True)
-    first_name = Column(String)
-    last_name = Column(String)
-    email = Column(String, unique=True, index=True)
-    phone = Column(String)
+    first_name = Column(String(100))
+    last_name = Column(String(100))
+    email = Column(String(255), unique=True, index=True)
+    phone = Column(String(20))

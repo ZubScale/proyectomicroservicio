@@ -9,5 +9,5 @@ class Invoice(Base):
     id = Column(Integer, primary_key=True, index=True)
     reservation_id = Column(Integer, unique=True, index=True)
     amount = Column(Float)
-    status = Column(String, default="generated")
+    status = Column(String(50), default="generated")
     created_at = Column(DateTime, default=datetime.utcnow)

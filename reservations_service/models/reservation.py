@@ -11,4 +11,4 @@ class Reservation(Base):
     check_in = Column(Date)
     check_out = Column(Date)
     total_price = Column(Float)
-    status = Column(String, default="confirmed")
+    status = Column(String(50), default="confirmed")
