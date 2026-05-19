@@ -1,10 +1,27 @@
 version: '3.9'
 
 services:
+  mysql:
+    image: mysql:8.0
+    environment:
+      MYSQL_ROOT_PASSWORD: "hugo$$"
+      MYSQL_DATABASE: hotel
+    ports:
+      - "3308:3306"
+    volumes:
+      - mysql_data:/var/lib/mysql
+      - ./hotel_database.sql:/docker-entrypoint-initdb.d/01-hotel.sql
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-uroot", "-phugo$$"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+      start_period: 30s
+
   redis:
     image: redis:alpine
     ports:
-      - "6379:6379"
+      - "6380:6379"
 
   api_gateway:
     build:
@@ -33,52 +50,95 @@ services:
     command: uvicorn auth_service.main:app --host 0.0.0.0 --port 8001 --reload
     environment:
       - JWT_SECRET=production_safe_secret_key
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
     ports:
       - "8001:8001"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   rooms_service:
     build:
       context: .
       dockerfile: Dockerfile
     command: uvicorn rooms_service.main:app --host 0.0.0.0 --port 8002 --reload
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
     ports:
       - "8002:8002"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   guests_service:
     build:
       context: .
       dockerfile: Dockerfile
     command: uvicorn guests_service.main:app --host 0.0.0.0 --port 8003 --reload
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
     ports:
       - "8003:8003"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   reservations_service:
     build:
       context: .
       dockerfile: Dockerfile
     command: uvicorn reservations_service.main:app --host 0.0.0.0 --port 8004 --reload
-    ports:
-      - "8004:8004"
     environment:
       - REDIS_URL=redis://redis:6379
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
+    ports:
+      - "8004:8004"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   payments_service:
     build:
       context: .
       dockerfile: Dockerfile
     command: uvicorn payments_service.main:app --host 0.0.0.0 --port 8005 --reload
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
     ports:
       - "8005:8005"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   notifications_service:
     build:
       context: .
       dockerfile: Dockerfile
     command: uvicorn notifications_service.main:app --host 0.0.0.0 --port 8006 --reload
-    ports:
-      - "8006:8006"
     environment:
       - REDIS_URL=redis://redis:6379
+    ports:
+      - "8006:8006"
     depends_on:
       - redis
 
@@ -87,13 +147,34 @@ services:
       context: .
       dockerfile: Dockerfile
     command: uvicorn availability_service.main:app --host 0.0.0.0 --port 8007 --reload
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
     ports:
       - "8007:8007"
+    depends_on:
+      mysql:
+        condition: service_healthy
 
   billing_service:
     build:
       context: .
       dockerfile: Dockerfile
     command: uvicorn billing_service.main:app --host 0.0.0.0 --port 8008 --reload
+    environment:
+      - DB_HOST=mysql
+      - DB_PORT=3306
+      - DB_USER=root
+      - DB_PASSWORD=hugo$$
+      - DB_NAME=hotel
     ports:
       - "8008:8008"
+    depends_on:
+      mysql:
+        condition: service_healthy
+
+volumes:
+  mysql_data:

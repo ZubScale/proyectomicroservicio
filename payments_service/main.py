@@ -1,8 +1,9 @@
 # payments_service/main.py
 from fastapi import FastAPI
 from payments_service.routers import payments
-from payments_service.database import engine, Base
+from payments_service.database import engine, Base, wait_for_db
 
+wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Payments Service")

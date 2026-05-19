@@ -1,8 +1,9 @@
 # availability_service/main.py
 from fastapi import FastAPI
 from availability_service.routers import availability
-from availability_service.database import engine, Base
+from availability_service.database import engine, Base, wait_for_db
 
+wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Availability Service")

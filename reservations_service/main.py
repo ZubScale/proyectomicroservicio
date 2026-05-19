@@ -1,8 +1,9 @@
 # reservations_service/main.py
 from fastapi import FastAPI
 from reservations_service.routers import reservations
-from reservations_service.database import engine, Base
+from reservations_service.database import engine, Base, wait_for_db
 
+wait_for_db()
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Reservations Service")
